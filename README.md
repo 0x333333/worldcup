@@ -79,6 +79,6 @@ Honduras                   0 - 0                    Ecuador
 ⚽  Will be played Tomorrow at 3:00 PM
 ```
 
-LICENSE
+### LICENSE
 
 [MIT](https://github.com/jesusjzp/worldcup/blob/master/LICENSE) License.
