@@ -1,7 +1,7 @@
 {
   "name": "nodeworldcup",
-  "version": "0.1.3",
-  "description": "Get FIFA world cup 2014 scores straight from the command line",
+  "version": "0.1.5",
+  "description": "Watch world cup 2014 scores from your terminal!",
   "main": "bin/nodeworldcup",
   "bin": {
     "nodeworldcup": "bin/nodeworldcup"
