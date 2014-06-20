@@ -40,6 +40,7 @@ function render(match) {
     matchPercentage = 100;
     if (match.winner === 'Draw') {
       result = 'Draw';
+      matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
     } else {
       result = format('{winner} won', { winner: match.winner });
       matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
