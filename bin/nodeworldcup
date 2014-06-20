@@ -164,7 +164,7 @@ var init = function(params) {
 program.name = config.name;
 program
   .version('0.1.0')
-  .usage('[current] [today] [tommorow]')
+  .usage('[current] [today] [tommorow] [groups]')
   //.option('-T, --no-tests', 'ignore test hook')
   .parse(process.argv);
 
