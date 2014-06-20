@@ -1,6 +1,6 @@
 {
   "name": "nodeworldcup",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Watch world cup 2014 scores from your terminal!",
   "main": "bin/nodeworldcup",
   "bin": {
