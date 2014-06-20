@@ -9,8 +9,16 @@ var http = require('http'),
 
 var WHITE = '\x1B[37m', GREEN = '\x1B[32m', CLEAR = '\x1B[m', SOCCER = '\u26BD';
 
-function get(category, callback) {
-  var uri = 'http://worldcup.sfg.io/matches/'+category;
+////////////////////////////// Get json data //////////////////////////////
+var get = function(category, callback) {
+  
+  var uri = 'http://worldcup.sfg.io/matches/{category}';
+
+  if (category === 'groups') {
+    uri = uri.replace('matches/{category}', 'group_results');
+  } else {
+    uri = uri.replace('{category}', category);
+  }
 
   request(uri, function(err, response, body) {
     if(!err && response.statusCode == 200) {
@@ -19,56 +27,92 @@ function get(category, callback) {
       callback(err);
     }
   });
-}
 
-function render(match) {
-  if(!match) {
-    return;
-  }
-  var matchDate = moment.parseZone(match.datetime),
-    now = moment();
-  var seconds = Math.floor(now.diff(matchDate) / 1000);
-  var status = seconds > 0 ? (seconds > 60 * 95 ? 'past' : 'now'): 'future';
-  var color = status in ['past', 'now'] ? GREEN : WHITE;
-  var home = match.home_team;
-  var away = match.away_team;
-  var matchStatus, matchPercentage, result;
-  if(status === 'now') {
-    matchPercentage = Math.floor(seconds / 60 / 95 * 100)
-    matchStatus = format('Being played now: {minutes} gone', { minutes: moment.duration(now.diff(matchDate)).humanize() });
-  } else if (status === 'past') {
-    matchPercentage = 100;
-    if (match.winner === 'Draw') {
-      result = 'Draw';
-      matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
-    } else {
-      result = format('{winner} won', { winner: match.winner });
-      matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
+};
+
+////////////////////////////// Analyze json //////////////////////////////
+var render = function(matches) {
+  matches.forEach(function(match) {
+    if(!match) {
+      return;
     }
-  } else {
-    matchPercentage = 0; // future
-    matchStatus = format('Will be played {time}', {time: moment(matchDate.valueOf()).calendar() }); // %humanize.naturaltime(diff)
-  }
-  var output = color + '{home}{lpad}{homeGoals} - {awayGoals}{rpad}{away}\n{progress}\n' + CLEAR + WHITE + SOCCER + '  {status}\n\n' + CLEAR; //'\x1B[37m'
-  process.stdout.write(format(output, {
-    home: home.country,
-    homeGoals: home.goals,
-    awayGoals: away.goals,
-    away: away.country,
-    lpad: new Array(28-home.country.length).join(' '),
-    rpad: new Array(28-away.country.length).join(' '),
-    progress: progressBar(matchPercentage),
-    status: matchStatus
-  }));
-}
+    var matchDate = moment.parseZone(match.datetime),
+      now = moment();
+    var seconds = Math.floor(now.diff(matchDate) / 1000);
+    var status = seconds > 0 ? (seconds > 60 * 95 ? 'past' : 'now'): 'future';
+    var color = status in ['past', 'now'] ? GREEN : WHITE;
+    var home = match.home_team;
+    var away = match.away_team;
+    var matchStatus, matchPercentage, result;
+    if(status === 'now') {
+      matchPercentage = Math.floor(seconds / 60 / 95 * 100);
+      matchStatus = format('Being played now: {minutes} gone', { minutes: moment.duration(now.diff(matchDate)).humanize() });
+    } else if (status === 'past') {
+      matchPercentage = 100;
+      if (match.winner === 'Draw') {
+        result = 'Draw';
+        matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
+      } else {
+        result = format('{winner} won', { winner: match.winner });
+        matchStatus = format('Played {time}. {result}', { time: moment(matchDate.valueOf()).calendar(), result: result}); //% (humanize.naturaltime(diff), result)
+      }
+    } else {
+      matchPercentage = 0; // future
+      matchStatus = format('Will be played {time}', {time: moment(matchDate.valueOf()).calendar() }); // %humanize.naturaltime(diff)
+    }
+    var output = color + '{home}{lpad}{homeGoals} - {awayGoals}{rpad}{away}\n{progress}\n' + CLEAR + WHITE + SOCCER + '  {status}\n\n' + CLEAR; //'\x1B[37m'
+    process.stdout.write(format(output, {
+      home: home.country,
+      homeGoals: home.goals,
+      awayGoals: away.goals,
+      away: away.country,
+      lpad: new Array(28-home.country.length).join(' '),
+      rpad: new Array(28-away.country.length).join(' '),
+      progress: progressBar(matchPercentage),
+      status: matchStatus
+    }));
+  });
+};
 
-function format(tpl, obj) {
+var group = function(matches) {
+  var currentGroup = 0;
+
+  matches.forEach(function(match) {
+    if (currentGroup !== match.group_id) {
+      currentGroup = match.group_id;
+      process.stdout.write(GREEN + '\nGROUP ' + String.fromCharCode(currentGroup+64) + '\n' + CLEAR);
+      process.stdout.write(GREEN + 'Teams                          W   D   L   GF   GA   KO    \n' + CLEAR);
+      process.stdout.write(GREEN + '-----------------------------------------------------------\n' + CLEAR);
+    }
+
+    var output  = '{name}{npad}{wins}   {draws}   {losses}   {gf}    {ga}    {ko}\n';
+
+    process.stdout.write(format(output, {
+      name    : match.country,
+      npad    : new Array(32-match.country.length).join(' '),
+      wins    : match.wins,
+      draws   : match.draws,
+      losses  : match.losses,
+      gf      : match.goals_for,
+      ga      : match.goals_against,
+      ko      : match.knocked_out
+    }));
+  });
+
+
+};
+
+////////////////////////////// Formatter //////////////////////////////
+var format = function(tpl, obj) {
   return tpl.replace(/({(\w+)})/g, function() {
     var out = obj[arguments[2]];
     return out === null || out === 'undefined' ? '' : out;
   });
 };
-function processCategory(category) {
+
+
+////////////////////////////// Check parameters //////////////////////////////
+var processCategory = function(category) {
   get(category, function(err, matches) {
     if(err) {
       console.error('could not load remote data', err);
@@ -80,31 +124,41 @@ function processCategory(category) {
     switch(category) {
       case 'current':
         console.log('Current match:');
+        render(matches);
         break;
       case 'today':
         console.log('Today\'s matches:');
+        render(matches);
         break;
       case 'tomorrow':
         console.log('Tomorrow\'s matches:');
+        render(matches);
+        break;
+      case 'groups':
+        console.log('Groups result:');
+        process.stdout.write(GREEN + 'W  ' + CLEAR + ':' + 'Wins\n');
+        process.stdout.write(GREEN + 'D  ' + CLEAR + ':' + 'draws\n');
+        process.stdout.write(GREEN + 'L  ' + CLEAR + ':' + 'losses\n');
+        process.stdout.write(GREEN + 'GF ' + CLEAR + ':' + 'Goals for\n');
+        process.stdout.write(GREEN + 'GA ' + CLEAR + ':' + 'Goals against\n');
+        process.stdout.write(GREEN + 'KO ' + CLEAR + ':' + 'Knocked out\n');
+        group(matches);
         break;
     }
-    (matches).forEach(function(match) {
-      render(match);
-    });
   });
-}
+};
 
-function progressBar(percentage) {
+var progressBar = function(percentage) {
   var cursor = percentage > 0 && percentage < 100 ? 'o' : '',
     width = 61;
   var done = Math.floor((width - 1) * percentage / 100),
     remaining = Math.max(width - done - 1, 0);
   return GREEN + new Array(done).join('-') + cursor + CLEAR + WHITE + new Array(remaining).join('-') + CLEAR;
-}
+};
 
-function init(topics) {
-  (topics.length ? topics : ['today']).forEach(processCategory);
-}
+var init = function(params) {
+  (params.length ? params : ['today']).forEach(processCategory);
+};
 
 ////////// MAIN //////////
 program.name = config.name;
