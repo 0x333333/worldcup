@@ -25,7 +25,7 @@ The flag `-g` ensures that the worldcup command is installed and accessible glob
 ```bash
 $ nodeworldcup -h
 
-  Usage: nodeworldcup [current] [today] [tommorow]
+  Usage: nodeworldcup [current] [today] [tommorow] [groups]
 
   Options:
 
@@ -77,6 +77,35 @@ Switzerland                0 - 0                     France
 Honduras                   0 - 0                    Ecuador
 -----------------------------------------------------------
 ⚽  Will be played Tomorrow at 3:00 PM
+```
+
+```bash
+$ nodeworldcup groups
+
+W  :Wins
+D  :draws
+L  :losses
+GF :Goals for
+GA :Goals against
+KO :Knocked out
+
+GROUP A
+Teams                          W   D   L   GF   GA   KO
+-----------------------------------------------------------
+Brazil                         1   1   0   3    1    false
+Mexico                         1   1   0   1    0    false
+Croatia                        1   0   1   5    3    false
+Cameroon                       0   0   2   0    5    false
+
+GROUP B
+Teams                          W   D   L   GF   GA   KO
+-----------------------------------------------------------
+Chile                          2   0   0   5    1    false
+Netherlands                    2   0   0   8    3    false
+Australia                      0   0   2   3    6    false
+Spain                          0   0   2   1    7    false
+
+...
 ```
 
 ### LICENSE
