@@ -5,6 +5,8 @@ Forked from [simoami/worldcup](https://github.com/simoami/worldcup).
 
 Inspired from the python version of [worldcup](https://github.com/fatiherikli/worldcup).
 
+Thanks for the API provided by [Software for good](http://softwareforgood.com/soccer-good/).
+
 The hacker's way to get worldcup scores!
 
 ![pic](https://dl.dropboxusercontent.com/u/107773577/Blog%20pics/Screen%20Shot%202014-06-19%20at%2012.51.54%20PM.png)
