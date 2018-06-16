@@ -9,7 +9,7 @@ Thanks for the API provided by [Software for good](http://softwareforgood.com/so
 
 The hacker's way to get worldcup scores!
 
-![pic](https://dl.dropboxusercontent.com/u/107773577/Blog%20pics/Screen%20Shot%202014-06-19%20at%2012.51.54%20PM.png)
+![pic](http://7sbqda.com1.z0.glb.clouddn.com/Screen%20Shot%202018-06-15%20at%2010.18.07%20PM.png)
 
 ### Installation
 
